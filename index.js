@@ -7,12 +7,24 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
 
-сonst foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath);
+const foldersPath = path.join(__dirname, 'commands');  // путь к папке с командами
+const commandFolders = fs.readdirSync(foldersPath);  // читаем папки внутри
 
-for(const folder of commandFolders) {
-
+for (const folder of commandFolders) {
+	const commandsPath = path.join(foldersPath, folder); // путь к папке с конкретной группой команд
+	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js')); // JS-файлы команд
+	for (const file of commandFiles) {
+		const filePath = path.join(commandsPath, file);
+		const command = require(filePath);
+		if ('data' in command && 'execute' in command) {
+			client.commands.set(command.data.name, command);
+		}
+		else {
+			console.log(`[ВНИМАНИЕ] В команде по пути ${filePath} отсутствует обязательное свойство "data" или "execute".`);
+		}
+	}
 }
+
 
 client.once(Events.ClientReady, readyClient => {
 	console.log(`Готово! Залогинен как: ${readyClient.user.tag}`);
