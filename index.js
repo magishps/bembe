@@ -1,81 +1,67 @@
-const fs = require('node:fs');
-const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits, MessageFlags } = require('discord.js');
-const { token } = require('./config.json');
+const fs = require('node:fs'); // Файловая система
+const path = require('node:path'); // Для работы с путями файлов
+const { Client, Events, GatewayIntentBits, Collection, AttachmentBuilder } = require('discord.js'); // Библиотека для создания ботов
+const { token } = require('./config.json'); // Токен
+const fetch = require('node-fetch'); // Скачивание изображений
+const Jimp = require('jimp'); // Для смены расширения файлов
+const GIFEncoder = require('gif-encoder-2');
+const { PassThrough } = require('stream');
 
-// Создаём нового клиента Discord с нужными намерениями
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
-// Создаём коллекцию (словарь) для хранения команд
 client.commands = new Collection();
-
-// Путь к папке с командами
+// путь к папке с командами
 const foldersPath = path.join(__dirname, 'commands');
-// Читаем все подпапки внутри этой папки
+// читаем папки внутри
 const commandFolders = fs.readdirSync(foldersPath);
 
 for (const folder of commandFolders) {
-	// Путь к конкретной папке с группой команд
+	// путь к папке с конкретной группой команд
 	const commandsPath = path.join(foldersPath, folder);
-	// Фильтруем только .js файлы
+	// JS-файлы команд
 	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
-
 	for (const file of commandFiles) {
 		const filePath = path.join(commandsPath, file);
 		const command = require(filePath);
-
-		// Проверяем, есть ли обязательные свойства: data и execute
 		if ('data' in command && 'execute' in command) {
 			client.commands.set(command.data.name, command);
 		}
 		else {
-			console.log(`[ВНИМАНИЕ] Команда в файле ${filePath} не содержит обязательного свойства "data" или "execute".`);
+			console.log(`[ВНИМАНИЕ] В команде по пути ${filePath} отсутствует обязательное свойство "data" или "execute".`);
 		}
 	}
 }
 
-// Событие: бот успешно подключился
+
 client.once(Events.ClientReady, readyClient => {
-	console.log(`✅ Бот готов! Залогинен как: ${readyClient.user.tag}`);
+	console.log(`Готово! Залогинен как: ${readyClient.user.tag}`); // Логин
 });
 
-// Обработка входящих взаимодействий (slash-команд)
-client.on(Events.InteractionCreate, async interaction => {
-	// Проверяем, что это именно slash-команда
-	if (!interaction.isChatInputCommand()) return;
 
-	// Получаем нужную команду по имени
-	const command = interaction.client.commands.get(interaction.commandName);
+client.on(Events.InteractionCreate, async Interaction => {
+	if (!Interaction.isChatInputCommand()) return;
 
-	// Если команда не найдена
+	const command = Interaction.client.commands.get(Interaction.commandName);
+
 	if (!command) {
-		console.error(`❌ Команда "${interaction.commandName}" не найдена.`);
+		console.error(`Нет команды ${Interaction.commandName} или найдено`);
 		return;
 	}
 
 	try {
-		// Пытаемся выполнить команду
-		await command.execute(interaction);
+		await command.execute(Interaction);
 	}
 	catch (error) {
-		console.error('⚠️ Ошибка при выполнении команды:', error);
-
-		// Если уже был ответ — отправляем follow-up
-		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp({
-				content: 'Произошла ошибка при выполнении команды!',
-				flags: MessageFlags.Ephemeral,
-			});
+		console.error(error);
+		if (Interaction.replied || Interaction.deferred) {
+			await Interaction.followUp({ content: 'Произошла ошибка при выполнении команды!', flags: MessageFlags.Ephemeral });
 		}
 		else {
-			// Если ответа ещё не было — отправляем обычный ответ
-			await interaction.reply({
-				content: 'Произошла ошибка при выполнении команды!',
-				flags: MessageFlags.Ephemeral,
-			});
+		// Если ответ ещё не отправлен — отправляем сообщение с ошибкой
+			await Interaction.reply({ content: 'Произошла ошибка при выполнении команды!', flags: MessageFlags.Ephemeral });
 		}
 	}
 });
 
-// Запускаем бота
+// Логин в дискорде с помощью токена
 client.login(token);
