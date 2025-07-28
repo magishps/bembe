@@ -3,9 +3,9 @@ const { SlashCommandBuilder } = require('discord.js');
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('server')
-		.setDescription('Provides information about the server.'),
+		.setDescription('Узнайте информацию о сервере'),
 	async execute(interaction) {
 		// interaction.guild is the object representing the Guild in which the command was run
-		await interaction.reply(`This server is ${interaction.guild.name} and has ${interaction.guild.memberCount} members.`);
+		await interaction.reply(`Это сервер ${interaction.guild.name} и на нём ${interaction.guild.memberCount} человек`);
 	},
 };
