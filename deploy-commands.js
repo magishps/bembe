@@ -40,6 +40,10 @@ const rest = new REST().setToken(token);
 		);
 
 		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+		await rest.put(
+			Routes.applicationCommands(clientId),
+			{ body: commands },
+		);
 	}
 	catch (error) {
 		// And of course, make sure you catch and log any errors!
