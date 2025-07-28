@@ -1,13 +1,20 @@
 const fs = require('node:fs'); // Файловая система
 const path = require('node:path'); // Для работы с путями файлов
-const { Client, Events, GatewayIntentBits, Collection, AttachmentBuilder } = require('discord.js'); // Библиотека для создания ботов
+const { Client, Events, GatewayIntentBits, Collection, AttachmentBuilder, Message } = require('discord.js'); // Библиотека для создания ботов
 const { token } = require('./config.json'); // Токен
 const fetch = require('node-fetch'); // Скачивание изображений
 const Jimp = require('jimp'); // Для смены расширения файлов
 const GIFEncoder = require('gif-encoder-2');
 const { PassThrough } = require('stream');
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+const client = new Client({ intents: [
+	GatewayIntentBits.Guilds, 
+	GatewayIntentBits.GuildMessages, 
+	GatewayIntentBits.MessageContent
+	] 
+});
+
+const handleRandomReaction = require('./commands/utility/event/randomReaction');
 
 client.commands = new Collection();
 // путь к папке с командами
@@ -62,6 +69,17 @@ client.on(Events.InteractionCreate, async Interaction => {
 		}
 	}
 });
+
+client.on('messageCreate', async (Message) => { // Обработка сообщений
+	try {
+		await handleRandomReaction(Message); // Запуск модуля
+	} catch(error) {
+		console.error('Ошибка в RandomReaction', error);
+	}
+}); 
+
+
+
 
 // Логин в дискорде с помощью токена
 client.login(token);

@@ -10,4 +10,3 @@ module.exports = {
 		await Interaction.reply('Он создал меня: magishps');
 	},
 };
-
