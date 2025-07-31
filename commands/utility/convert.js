@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, AttachmentBuilder, MessageFlags } = require('discord.js');
-const { execute } = require('./magis');
 const GIFEncoder = require('gif-encoder-2/src/GIFEncoder');
 const Jimp = require('jimp'); // <-- Важно!
 const fetch = require('node-fetch');

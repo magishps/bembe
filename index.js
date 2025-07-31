@@ -6,6 +6,7 @@ const fetch = require('node-fetch'); // Скачивание изображен�
 const Jimp = require('jimp'); // Для смены расширения файлов
 const GIFEncoder = require('gif-encoder-2');
 const { PassThrough } = require('stream');
+const listExcelFiles = require('./commands/utility/event/RandomWeather'); // Импорт функции для работы с погодой
 
 const client = new Client({ intents: [
 	GatewayIntentBits.Guilds, 
@@ -42,6 +43,10 @@ for (const folder of commandFolders) {
 
 client.once(Events.ClientReady, readyClient => {
 	console.log(`Готово! Залогинен как: ${readyClient.user.tag}`); // Логин
+	
+	
+	
+	listExcelFiles();
 });
 
 
@@ -77,7 +82,6 @@ client.on('messageCreate', async (Message) => { // Обработка сообщ
 		console.error('Ошибка в RandomReaction', error);
 	}
 }); 
-
 
 
 
