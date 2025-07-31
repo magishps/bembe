@@ -61,28 +61,14 @@ client.once(Events.ClientReady, async (readyClient) => {
 	
 	listExcelFiles();
 
-	
+	await trySendForecastByLastMessage(client, channelId, getSeasonFromMonth, getMonthlyForecast);
 
 	 // Планировщик: 1-е число месяца в 00:00
-  cron.schedule('*/1 * * * *', async () => {
-	await trySendForecastByLastMessage(client, channelId, getSeasonFromMonth, getMonthlyForecast);
-    const now = new Date();
-    const season = getSeasonFromMonth(now.getMonth());
-    const forecast = getMonthlyForecast(season);
-    try {
-      const channel = await client.channels.fetch(channelId);
-      if (channel && channel.isTextBased()) {
-        await channel.send(forecast);
-        console.log('Прогноз был успешно отправлен');
-      } else {
-        console.error('Канал не текстовый или не найден');
-      }
-    } catch (error) {
-      console.error('Ошибка при отправке прогноза:', error);
-    }
-  });
+ cron.schedule('0 0 1 * *', async () => {
+  await trySendForecastByLastMessage(client, channelId, getSeasonFromMonth, getMonthlyForecast);
 });
 
+}); // <-- добавьте эту закрывающую скобку
 
 client.on(Events.InteractionCreate, async Interaction => {
 	if (!Interaction.isChatInputCommand()) return;
@@ -121,3 +107,5 @@ client.on('messageCreate', async (Message) => { // Обработка сообщ
 
 // Логин в дискорде с помощью токена
 client.login(token);
+
+
