@@ -6,7 +6,12 @@ const fetch = require('node-fetch'); // Скачивание изображен�
 const Jimp = require('jimp'); // Для смены расширения файлов
 const GIFEncoder = require('gif-encoder-2');
 const { PassThrough } = require('stream');
-const listExcelFiles = require('./commands/utility/event/RandomWeather'); // Импорт функции для работы с погодой
+const { listExcelFiles, getMonthlyForecast } = require('./commands/utility/event/RandomWeather'); // Импорт функции для работы с погодой
+const cron = require('node-cron');
+const { trySendForecastByLastMessage } = require('./commands/utility/event/tryRandomWeather');
+
+
+
 
 const client = new Client({ intents: [
 	GatewayIntentBits.Guilds, 
@@ -16,6 +21,14 @@ const client = new Client({ intents: [
 });
 
 const handleRandomReaction = require('./commands/utility/event/randomReaction');
+const channelId = '1400536179648237720'; // ID канала для отправки прогноза погоды
+
+function getSeasonFromMonth(month) {
+  if ([11, 0, 1].includes(month)) return 'winter';
+  if ([2, 3, 4].includes(month)) return 'spring';
+  if ([5, 6, 7].includes(month)) return 'summer';
+  return 'autumn';
+}
 
 client.commands = new Collection();
 // путь к папке с командами
@@ -41,12 +54,33 @@ for (const folder of commandFolders) {
 }
 
 
-client.once(Events.ClientReady, readyClient => {
+client.once(Events.ClientReady, async (readyClient) => {
 	console.log(`Готово! Залогинен как: ${readyClient.user.tag}`); // Логин
 	
 	
 	
 	listExcelFiles();
+
+	
+
+	 // Планировщик: 1-е число месяца в 00:00
+  cron.schedule('*/1 * * * *', async () => {
+	await trySendForecastByLastMessage(client, channelId, getSeasonFromMonth, getMonthlyForecast);
+    const now = new Date();
+    const season = getSeasonFromMonth(now.getMonth());
+    const forecast = getMonthlyForecast(season);
+    try {
+      const channel = await client.channels.fetch(channelId);
+      if (channel && channel.isTextBased()) {
+        await channel.send(forecast);
+        console.log('Прогноз был успешно отправлен');
+      } else {
+        console.error('Канал не текстовый или не найден');
+      }
+    } catch (error) {
+      console.error('Ошибка при отправке прогноза:', error);
+    }
+  });
 });
 
 
