@@ -12,6 +12,8 @@ function listExcelFiles() {
   });
 }
 
+
+
 // Прогноз на 30 дней
 function getMonthlyForecast(season) {
   const filePath = path.resolve(__dirname, '../../../data', `${season}.xlsx`);
@@ -19,7 +21,7 @@ function getMonthlyForecast(season) {
   const sheet = workbook.SheetNames[0];
   const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheet]);
 
-  let forecast = '📅 Погода на 30 дней:\n';
+  let forecast = `📅 Погода в Глубоководье за 30 дней:\n`;
 
   for (let day = 1; day <= 30; day++) {
     const roll = Math.floor(Math.random() * 20) + 1;
