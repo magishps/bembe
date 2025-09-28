@@ -68,7 +68,7 @@ client.once(Events.ClientReady, async (readyClient) => {
   await trySendForecastByLastMessage(client, channelId, getSeasonFromMonth, getMonthlyForecast);
 });
 
-}); // <-- добавьте эту закрывающую скобку
+});
 
 client.on(Events.InteractionCreate, async Interaction => {
 	if (!Interaction.isChatInputCommand()) return;

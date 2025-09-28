@@ -12,6 +12,10 @@ module.exports = async (Message) => {
     }
 
     if (Message.content.toLowerCase().includes('эдик')) {
-        await Message.react('💵');
+        await Message.react('🏳️‍🌈');
+    }
+    
+    if (Message.content.toLowerCase().includes('овца')) {
+        await Message.react('🐑');
     }
 };
