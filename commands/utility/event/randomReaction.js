@@ -3,7 +3,7 @@ const { Message, messageLink } = require("discord.js");
 module.exports = async (Message) => {
     if (Message.author.bot) return;
 
-    if(Math.random() < 0.02) {
+    if(Math.random() < 0.002) {
         await Message.react('😺');
     }
 

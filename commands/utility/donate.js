@@ -7,6 +7,6 @@ module.exports = {
 	    .setDescription('На PICUN F6🎧'),
 
 	async execute(Interaction) {
-		await Interaction.reply('[Освободить меня](https://www.donationalerts.com/r/magishps5)');
+		await Interaction.reply('[Освободить меня](https://dalink.to/magishps5)');
 	},
 };

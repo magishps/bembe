@@ -7,6 +7,6 @@ module.exports = {
 		.setDescription('Мой создатель'),
 
 	async execute(Interaction) {
-		await Interaction.reply('Он создал меня: magishps');
+		await Interaction.reply('Он создал меня: [magishps](https://magishps.github.io/magishps.github-io/)');
 	},
 };
