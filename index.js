@@ -1,6 +1,6 @@
 const fs = require('node:fs'); // Файловая система
 const path = require('node:path'); // Для работы с путями файлов
-const { Client, Events, GatewayIntentBits, Collection, AttachmentBuilder, Message } = require('discord.js'); // Библиотека для создания ботов
+const { Client, Events, GatewayIntentBits, Collection, AttachmentBuilder, Message, Partials } = require('discord.js'); // Библиотека для создания ботов
 const { token } = require('./config.json'); // Токен
 const fetch = require('node-fetch'); // Скачивание изображений
 const Jimp = require('jimp'); // Для смены расширения файлов
@@ -13,11 +13,15 @@ const { trySendForecastByLastMessage } = require('./commands/utility/event/tryRa
 
 
 
-const client = new Client({ intents: [
-	GatewayIntentBits.Guilds, 
-	GatewayIntentBits.GuildMessages, 
-	GatewayIntentBits.MessageContent
-	] 
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,              // для базовой работы с серверами
+    GatewayIntentBits.GuildMessages,       // для сообщений на серверах
+    GatewayIntentBits.MessageContent,      // чтобы читать содержимое сообщений
+    GatewayIntentBits.GuildMembers,        // **ВАЖНО** для работы с участниками (чтобы fetch работал)
+    GatewayIntentBits.DirectMessages,      // для личных сообщений
+  ],
+  partials: [Partials.Channel],             // чтобы ЛС (partial каналы) корректно обрабатывались
 });
 
 const handleRandomReaction = require('./commands/utility/event/randomReaction');
