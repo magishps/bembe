@@ -24,7 +24,7 @@ const client = new Client({
   partials: [Partials.Channel],             // чтобы ЛС (partial каналы) корректно обрабатывались
 });
 
-const handleRandomReaction = require('./commands/utility/event/randomReaction');
+const handleRandomReaction = require('./commands/utility/event/randomReaction.disable');
 const channelId = '1400536179648237720'; // ID канала для отправки прогноза погоды
 
 function getSeasonFromMonth(month) {
@@ -99,6 +99,8 @@ client.on(Events.InteractionCreate, async Interaction => {
 	}
 });
 
+
+
 client.on('messageCreate', async (Message) => { // Обработка сообщений
 	try {
 		await handleRandomReaction(Message); // Запуск модуля
@@ -107,7 +109,26 @@ client.on('messageCreate', async (Message) => { // Обработка сообщ
 	}
 }); 
 
+client.on('messageCreate', async message => {
+    if (message.author.bot) return; // Игнорируем сообщения от ботов
 
+    const prefix = '!'; // Префикс команд
+    if (!message.content.startsWith(prefix)) return;
+
+    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const commandName = args.shift().toLowerCase();
+
+    // Если команда forumtags
+    if (commandName === 'forumtags') {
+        const forumTagsCommand = require('./commands/utility/forumTagsMessage');
+        try {
+            await forumTagsCommand.execute(message, args);
+        } catch (error) {
+            console.error(error);
+            await message.reply('Произошла ошибка при выполнении команды forumtags.');
+        }
+    }
+});
 
 // Логин в дискорде с помощью токена
 client.login(token);
